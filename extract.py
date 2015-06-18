@@ -1,3 +1,10 @@
+#Script to extract tweets on different topics using Tweepy library for Python. 
+#For more details, read http://tweepy.readthedocs.org/en/v3.2.0/getting_started.html#introduction
+#The extracted tweets are saved to .csv file named according to topic name.
+#To obtain API Keys and secret tokens for authorization, create a twitter developer account on https://apps.twitter.com/
+#There is a Rate limit restriction on extraction of tweets which limits the number of tweets to be extracted in 15-minute window using REST API.For more details, read https://dev.twitter.com/rest/public/rate-limiting. 
+#I noticed Rate Limit Error occured after around 3k tweets had been extracted and hence I used time.sleep() to wait for 16 mins after every 2.5k tweets were extracted
+
 import tweepy
 import time
 import csv
@@ -29,7 +36,7 @@ for i in range(0,10) :
       			writeFile.writerow(dataStrip)
 		fp.close()
 		print("Waiting for 15 mins : Rate Limit Restriction ") 
-    time.sleep(60*16) # Rate Limit Restriction on tweets extracted 
+		time.sleep(60*16) # Rate Limit Restriction on tweets extracted 
         	
 		
 			
