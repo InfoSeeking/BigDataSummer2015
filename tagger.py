@@ -1,3 +1,5 @@
+# Uses CMU Noah's Ark Lab POS Tagger for tweets http://www.ark.cs.cmu.edu/TweetNLP/
+
 import subprocess
 import shlex
 import csv
