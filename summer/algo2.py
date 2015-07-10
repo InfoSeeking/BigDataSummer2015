@@ -113,6 +113,7 @@ def k_means_clustering(data,n_clusters,topic) :
 	np.random.seed(0)
 	vectorizer = TfidfVectorizer(stop_words='english')
 	X = vectorizer.fit_transform(data)
+	X=X.toarray()
 	model = KMeans(n_clusters, init='k-means++', max_iter=500, n_init=20)
 	model.fit(X)
 	print(str(n_clusters)+" Clusters : Silhouette Coefficient:"+str(silhouette_score(X, model.labels_, sample_size=len(data))))

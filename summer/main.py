@@ -114,7 +114,9 @@ print("\naspect_Ranking_and_Selection")
 aspect_freq=ranking.get_freq(aspects_tweet) 
 aspect_freq=sorted(aspect_freq,key=lambda x: int(x[1]),reverse=True)
 aspect_freq=error.correct(aspect_freq)
-aspects_sel=util.filter_rlist(aspect_freq,5,1)
+aspects_sel=util.filter_rlist(aspect_freq,10,1)
+
+
 util.listTocsv('results/ASPECTS_'+file_name,aspects_sel)
 aspects=util.listfromlist(aspects_sel,0)
 print aspects
@@ -123,7 +125,7 @@ aspect_hits=util.csvTolist("results/pmi_"+topic+".csv")
 print aspect_hits
 aspect_hits=sorted(aspect_hits,key=lambda x: float(x[2]),reverse=True)
 util.listTocsv('results/ASPECTS_SORTED_'+file_name,aspect_hits)
-asp_hits=util.filter_rlist(aspect_hits,4,1)
+asp_hits=util.filter_rlist(aspect_hits,6,1)
 print asp_hits
 print len(asp_hits)
 #asp_score=ranking.in_both(asp_hits,aspects_sel)

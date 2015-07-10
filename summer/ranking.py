@@ -35,7 +35,6 @@ def hits(topic) :
 #		print json_res['queries']['request'][0]['totalResults']
 #	   	google_hits=long(json_res['queries']['request'][0]['totalResults'])
 	data=results.read()	
-	print data
 	start=data.find("Next</a><span>")
 	data_endpart=data[start:] 
 	end=data_endpart.find("results") 
@@ -68,7 +67,7 @@ def pmi_list(aspects,target,file_path) :
 	pmis=[]
 	pmi=["NULL"]*3
 	hits_t=hits(target)
-	for i in range(410,len(aspects)) :
+	for i in range(0,len(aspects)) :
 		pmi[0]=aspects[i]
 		pmi[1]=target
 		num=hits(target+'+'+aspects[i])
