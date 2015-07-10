@@ -8,15 +8,9 @@ import tagger
 
 def make_word2vec_file(pos_tweets,file_name,merge) :
 	stopwords=util.txtTolist("lists/stopwords.txt")
-	y=[]
-	pos_tweets=list(pos_tweets)
+	y=[]	
 	for tweet in pos_tweets :
-		x=[]
-		for tok in tweet :
-			if tok[1]=="A" or tok[1]=="N" or tok[1]=="^" or tok[1]=="V"  :
-				x.append(tok[0])
-			if tok[1]=="@" or tok[1]=="#" :
-				x.append(tok[0].strip("#@"))
+		x=[tok[0].strip("@#") for tok in tweet if tok[1]=="A" or tok[1]=="N" or tok[1]=="^" or tok[1]=="V" or tok[1]=="@" or tok[1]=="#" ]
 		x=[tok for tok in x if tok not in stopwords ]
 		y.append(x)
 	util.listTocsv(file_name,y)
