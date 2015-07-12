@@ -12,7 +12,7 @@ def cleandata(tweetasp,allaspects) :
 			x.append(asp)
 	return x
 
-def greedy(alltweetasp,allaspects,tweets):
+def greedy(alltweetasp,allaspects,tweets,topic):
 	left=[asp for asp in allaspects]
 	tweetsind=[]
 	ctr=[]
@@ -23,7 +23,7 @@ def greedy(alltweetasp,allaspects,tweets):
 		x[2]=len(x[0])
 		ctr.append(x)
 	ctr=sorted(ctr,key=lambda x: int(x[2]),reverse=True)
-	while len(left)!=0 and len(tweetsind)<=100 :
+	while len(left)!=0 and len(tweetsind)<100 :
 		aspects_tweet=ctr[0][0] #aspects for that tweet
 		tweetsind.append(ctr[0][1])#index for tweet selected
 		for i in range(0,len(aspects_tweet)) : # for each remaining aspect from tweet selected
@@ -37,7 +37,7 @@ def greedy(alltweetasp,allaspects,tweets):
 		ctr[0][0]=[]
 		ctr[0][2]=len(ctr[0][0])
 		ctr=sorted(ctr,key=lambda x: int(x[2]),reverse=True)
-	with open ("results/GREEDY1_HTC.txt","w+") as f:
+	with open ("results/GREEDY1_"+topic+".txt","w+") as f:
 		for i in range(len(tweetsind)) :
 			j=tweetsind[i]
 			f.write(str(tweets[j]).encode("utf-8"))
@@ -54,10 +54,71 @@ def select_tweet(asp_sel,aspects) :
 	return sel
 
 
+def get_asp_score(asplist,allaspects) :
+	size=len(allaspects)
+	score=0
+	for asp in asplist :
+		i=size
+		if asp in allaspects :
+			i=allaspects.index(asp)
+		score=score+size-i	
+	return score
+
+def greedy3(alltweetasp,allaspects,data,topic):
+	left=[asp for asp in allaspects]
+	tweets=[]
+	ctr=[]
+	asp_sel=[]
+	for i in range(0,len(allaspects)) :
+		asp_ctr=[]
+		asp_ctr.append(allaspects[i])
+		asp_ctr.append(0)
+		asp_sel.append(asp_ctr)
+	for i in range(0,len(alltweetasp)) :	
+		x=["NULL"]*3
+		x[0]=cleandata(alltweetasp[i],allaspects)
+		x[1]=i 
+		x[2]=get_asp_score(x[0],allaspects)
+		ctr.append(x)
+	ctr=sorted(ctr,key=lambda x: int(x[2]),reverse=True)
+	ear=len(ctr)
+	ctr=util.filter_rlist(ctr,1,2)
+	nex=len(ctr)
+	di=ear-nex
+	while len(left)!=0 and len(ctr)>0 and len(tweets)<100:
+		if select_tweet(asp_sel,ctr[0][0]) :
+			aspects_tweet=ctr[0][0] #aspects for that tweet
+			tweets.append(ctr[0][1])#index for tweet selected
+			for i in range(0,len(aspects_tweet)) : # for each remaining aspect from tweet selected
+				for tok in range(0,len(asp_sel)) :
+					if asp_sel[tok][0].lower()==aspects_tweet[i].lower() : 
+						asp_sel[tok][1]=asp_sel[tok][1]+1
+				if aspects_tweet[i] in left :
+					left.remove(aspects_tweet[i])  # remove that aspect from left
+					for j in range(1,len(ctr)) :    # remove aspect from other tweets aspects too as it is covered
+						if aspects_tweet[i] in ctr[j][0] :
+							ctr[j][0].remove(aspects_tweet[i])	
+							ctr[j][2]=get_asp_score(x[0],allaspects)
+							
+					
+			ctr[0][0]=[]
+			ctr[0][2]=0
+		else :
+			tok=ctr[0]
+			ctr.remove(tok)
+		ctr=sorted(ctr,key=lambda x: int(x[2]),reverse=True)
+	x=[]
+	x.append(left)
+	x.append(tweets)
+	with open ("results/GREEDY3_"+topic+".txt","w+") as f:
+		for i in range(len(tweets)) :
+			j=tweets[i]
+			f.write(str(data[j]).encode("utf-8"))
+			f.write("\n")
+	return left	
 
 
-
-def greedy2(alltweetasp,allaspects,data):
+def greedy2(alltweetasp,allaspects,data,topic):
 	left=[asp for asp in allaspects]
 	tweets=[]
 	ctr=[]
@@ -78,7 +139,7 @@ def greedy2(alltweetasp,allaspects,data):
 	ctr=util.filter_rlist(ctr,1,2)
 	nex=len(ctr)
 	di=ear-nex
-	while len(left)!=0 and len(ctr)>0 and len(tweets)<=100:
+	while len(left)!=0 and len(ctr)>0 and len(tweets)<100:
 		if select_tweet(asp_sel,ctr[0][0]) :
 			aspects_tweet=ctr[0][0] #aspects for that tweet
 			tweets.append(ctr[0][1])#index for tweet selected
@@ -102,7 +163,7 @@ def greedy2(alltweetasp,allaspects,data):
 	x=[]
 	x.append(left)
 	x.append(tweets)
-	with open ("results/GREEDY2_HTC.txt","w+") as f:
+	with open ("results/GREEDY2_"+topic+".txt","w+") as f:
 		for i in range(len(tweets)) :
 			j=tweets[i]
 			f.write(str(data[j]).encode("utf-8"))
@@ -113,8 +174,9 @@ def greedy2(alltweetasp,allaspects,data):
 	percentw=100-percentw
 	print("% "+str(percentw))
 	print("di "+str(di))	
-	util.listTocsv('Aspectdiff_HTC.csv',asp_sel)
+	util.listTocsv("Aspectdiff_"+topic+"csv",asp_sel)
 	return left		
+	
 
 def complement(l,val) :
 	x=[]
@@ -155,7 +217,7 @@ def get_neighbours(r2,allaspects,ctr,l1) :
 	return t2
 	
 
-def mincover(alltweetasp,allaspects,tweets) :
+def mincover(alltweetasp,allaspects,tweets,topic) :
 	left=[asp for asp in allaspects]
 	ctr=[]
 	l1=[]
@@ -178,7 +240,7 @@ def mincover(alltweetasp,allaspects,tweets) :
 		r2=complement(r1,len(allaspects))
 		n=get_neighbours(r2,allaspects,ctr,l1)
 	print("len : "+str(len(l1)))
-	with open ("results/MINCOVER_HTC.txt","w+") as f:
+	with open ("results/MINCOVER_"+topic+".txt","w+") as f:
 		for i in range(len(l1)) :
 			j=l1[i]
 			f.write(str(tweets[j]).encode("utf-8"))

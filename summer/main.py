@@ -29,7 +29,7 @@ DIR_PATH_TAGGED="data/tagged_data"
 # utf-8 encoding to include emoticons etc all kinds of spl chars found in tweets		
 reload(sys)  
 sys.setdefaultencoding('utf8')
-
+"""
 #python main.py /../X.csv
 file_path=sys.argv[1]
 file_name=os.path.basename(file_path)
@@ -51,6 +51,9 @@ pos_tweets=tagger.runtagger_parse(tweets) #[[[tw1_token1,postag,confidence],[tw1
 ind=clean.if_only_url(pos_tweets)
 tweets=util.remove_ind(tweets,ind)
 pos_tweets=util.remove_ind(pos_tweets,ind)
+tweets=clean.common_except_url(pos_tweets)
+pos_tweets=tagger.runtagger_parse(tweets)
+
 print("No. of Tweets extracted after cleaning :"+str(len(tweets)))
 with open (DIR_PATH_TAGGED+'/data_'+topic+".txt","w+") as f:
 	for i in range(len(tweets)) :
@@ -60,48 +63,71 @@ with open (DIR_PATH_TAGGED+'/data_'+topic+".txt","w+") as f:
 util.listTocsv(DIR_PATH_TAGGED+'/POS_'+file_name,pos_tweets)
 
 print("\nExtracting Top-100 Tweets")
+
+
+t=["HTC","Beyonce","Uber","Obama","Samsung"]
+for i in range(0,len(t)) :
+	tweets=util.txtTolist("data/tagged_data/data_"+t[i]+".txt")
+	res=tweets[0:100]
+	l=measures.entropy(tweets)
+	print(" random Entropy all "+str(t[i])+" "+str(l))
+	l=measures.entropy(res)
+	print(" random Entropy 100 "+str(t[i])+" "+str(l))
+	l=measures.levenshtein(res)
+	print(" random Levenshtein Distance "+str(t[i])+" "+str(l))
 """
-res=tweets[0:100]
-l=measures.entropy(tweets)
-print(" random Entropy all "+str(l))
-l=measures.entropy(res)
-print(" random Entropy 100 "+str(l))
-l=measures.levenshtein(res)
-print(" random Levenshtein Distance "+str(l))
 
 print("1. By Unsupervised Clustering : K-Means ")
-n=[5,10,25,50,100]
-for ni in range(0,len(n)) :
-	algo2.k_means_clustering(tweets,n[ni],topic)
-	res=util.txtTolist("results/TOP100_k_means"+str(n[ni])+".txt")
-	l=measures.entropy(res)
-	print(" K-means "+str(n[ni])+" Entropy "+str(l))
-	l=measures.levenshtein(res)
-	print(" K-means "+str(n[ni])+" Levenshtein Distance "+str(l))
+t=["Samsung"]
+for i in range(0,len(t)) :
+	tweets=util.txtTolist("data/tagged_data/data_"+t[i]+".txt")
+	print len(tweets)
+	n=[50,100]
+	for ni in range(0,len(n)) :
+		algo2.k_means_clustering(tweets,n[ni],t[i])
+		res=util.txtTolist("results/new/"+str(t[i])+"_"+"TOP100_k_means"+str(n[ni])+".txt")
+		l=measures.entropy(res)
+		print(" K-means "+str(t[i])+" "+str(n[ni])+" Entropy "+str(l))
+		l=measures.levenshtein(res)
+		print(" K-means "+str(t[i])+" "+str(n[ni])+" Levenshtein Distance "+str(l))
 	
 
 
-
+"""
 	
 print("2. By Ranking  ")
-rtweets=algo2.ranker(tweets,topic.lower(),100)
-with open ('results/TOP100_RANKING_'+str(topic)+".txt","w+") as f:
-	for i in range(len(rtweets)) :
-		f.write(str(rtweets[i]).encode("utf-8"))
-		f.write("\n")
-l=measures.entropy(rtweets)
-print(" RANKING Entropy "+str(l))
-l=measures.levenshtein(rtweets)
-print(" RANKING Levenshtein Distance "+str(l))
+t=["HTC","Beyonce","Uber","Obama","Samsung"]
+for i in range(0,len(t)) :
+	tweets=util.txtTolist("data/tagged_data/data_"+t[i]+".txt")
+	rtweets=algo2.ranker(tweets,t[i].lower(),100)
+	with open ('results/new/TOP100_RANKING_'+str(t[i])+".txt","w+") as f:
+		for i in range(len(rtweets)) :
+			f.write(str(rtweets[i]).encode("utf-8"))
+			f.write("\n")
+	l=measures.entropy(rtweets)
+	print(" RANKING Entropy "+str(l))
+	l=measures.levenshtein(rtweets)
+	print(" RANKING Levenshtein Distance "+str(l))
 
 
 print("3.Aspect based")
-res=util.txtTolist("results/GREEDY1_HTC.txt")
-l=measures.entropy(res)
-print(" ASPECT Entropy "+str(l))
-l=measures.levenshtein(res)
-print(" ASPECT Levenshtein Distance "+str(l))
-"""
+t=["Obama"]
+for i in range(0,len(t)) :
+	res=util.txtTolist("results/GREEDY1_"+t[i]+".txt")
+	l=measures.entropy(res)
+	print(" ASPECT Entropy GREEDY 1 "+str(t[i])+" "+str(l))
+	l=measures.levenshtein(res)
+	print(" ASPECT Levenshtein Distance GREEDY 1 "+str(t[i])+" "+str(l))
+
+print("3.Aspect based")
+t=["Obama"]
+for i in range(0,len(t)) :
+	res=util.txtTolist("results/GREEDY3_"+t[i]+".txt")
+	l=measures.entropy(res)
+	print(" ASPECT Entropy GREEDY 3 "+str(t[i])+" "+str(l))
+	l=measures.levenshtein(res)
+	print(" ASPECT Levenshtein Distance GREEDY 3 "+str(t[i])+" "+str(l))
+
 
 
 #print("3. By Topic Modelling : LDA ")
@@ -120,10 +146,10 @@ aspects_sel=util.filter_rlist(aspect_freq,10,1)
 util.listTocsv('results/ASPECTS_'+file_name,aspects_sel)
 aspects=util.listfromlist(aspects_sel,0)
 print aspects
-aspect_hits=ranking.pmi_list(aspects,topic,"results/pmi_"+topic+".csv")
+#aspect_hits=ranking.pmi_list(aspects,topic,"results/pmi_"+topic+".csv")
 aspect_hits=util.csvTolist("results/pmi_"+topic+".csv")
 print aspect_hits
-aspect_hits=sorted(aspect_hits,key=lambda x: float(x[2]),reverse=True)
+aspect_hits=sorted(aspect_hits,key=lambda x: float(x[1]),reverse=True)
 util.listTocsv('results/ASPECTS_SORTED_'+file_name,aspect_hits)
 asp_hits=util.filter_rlist(aspect_hits,6,1)
 print asp_hits
@@ -143,7 +169,7 @@ print len(asp_hits)
 #util.listTocsv(DIR_PATH_TAGGED+'/Sentiment1_'+file_name,aspect_senti)
 #maximum cover
 aspects1=util.listfromlist(asp_hits,0)
-t_ind=algo.greedy(aspects_tweet,aspects1,tweets)
+t_ind=algo.greedy(aspects_tweet,aspects1,tweets,topic)
 print("% of aspects covered")
 cover=len(aspects1)-len(t_ind)
 total=len(aspects1)
@@ -156,7 +182,7 @@ print (p*100)
 #BPGraph=algo.make_BPGraph(aspects_tweet,aspects)
 #t_ind1=algo.maxBPM(BPGraph)
 #print(len(t_ind1))
-cover=algo.mincover(aspects_tweet,aspects1,tweets)
+cover=algo.mincover(aspects_tweet,aspects1,tweets,topic)
 t_ind2=len(cover)
 print t_ind2
 print("% of aspects covered")
@@ -169,7 +195,17 @@ p=Decimal(cover)/Decimal(total)
 print (p*100)
 
 
-t_ind3=algo.greedy2(aspects_tweet,aspects1,tweets)
+t_ind3=algo.greedy2(aspects_tweet,aspects1,tweets,topic)
+print("% of aspects covered")
+cover=len(aspects1)-len(t_ind3)
+total=len(aspects1)
+print cover
+print total
+getcontext().prec = 6
+p=Decimal(cover)/Decimal(total)
+print (p*100)
+
+t_ind3=algo.greedy3(aspects_tweet,aspects1,tweets,topic)
 print("% of aspects covered")
 cover=len(aspects1)-len(t_ind3)
 total=len(aspects1)
@@ -181,4 +217,4 @@ print (p*100)
 
 
 print("ASPECT MINING + SENTIMENT CLASSIFICATION : DONE")
-
+"""

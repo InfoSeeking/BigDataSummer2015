@@ -98,7 +98,7 @@ def rank_by_val(data,topic,ind):
 
 def ranker(data,topic,ind) :
 	rind=rank_by_val(data,topic,ind)
-	with open ("results/RANKING_index.txt","w+") as f:
+	with open ("results/new/"+topic+"_RANKING_index.txt","w+") as f:
 		for i in range(len(rind)) :
 			f.write(str(rind[i]))
 			f.write("\n")
@@ -110,10 +110,10 @@ def ranker(data,topic,ind) :
 
 
 def k_means_clustering(data,n_clusters,topic) :
+	print "entered" 
 	np.random.seed(0)
 	vectorizer = TfidfVectorizer(stop_words='english')
 	X = vectorizer.fit_transform(data)
-	X=X.toarray()
 	model = KMeans(n_clusters, init='k-means++', max_iter=500, n_init=20)
 	model.fit(X)
 	print(str(n_clusters)+" Clusters : Silhouette Coefficient:"+str(silhouette_score(X, model.labels_, sample_size=len(data))))
@@ -128,7 +128,7 @@ def k_means_clustering(data,n_clusters,topic) :
 	# Get Clusterwise Top terms	
 	order_centroids = model.cluster_centers_.argsort()[:, ::-1]
     	terms = vectorizer.get_feature_names()
-	with open("cluster_terms.csv",'w+') as f:
+	with open("results/new/"+str(topic)+"_cluster_terms"+str(n_clusters)+".csv",'w+') as f:
 		for i in range(n_clusters):
 			f.write("Cluster %d:\t" % i)
 			for ind in order_centroids[i, :10]:
@@ -137,7 +137,7 @@ def k_means_clustering(data,n_clusters,topic) :
 	f.close()
 	
 	#Write Tweetwise Clusters to File
-	with open("results/tweetwise cluster k"+str(n_clusters)+".csv",'w+') as f:
+	with open("results/new/"+str(topic)+"tweetwise cluster k"+str(n_clusters)+".csv",'w+') as f:
 		for i in range(0,len(arr)) :
 			f.write(str(arr[i])+"\n")
 	f.close()
@@ -160,16 +160,16 @@ def k_means_clustering(data,n_clusters,topic) :
 		zx.append(z)
 		zz.extend(z)
 
-	with open ("results/TOP100_k_means"+str(n_clusters)+"_index.txt","w+") as f:
+	with open ("results/new/"+str(topic)+"_"+"TOP100_k_means"+str(n_clusters)+"_index.txt","w+") as f:
 		for i in range(len(zx)) :
 			f.write(str(zx[i]))
 			f.write("\n")
 		
 
-	with open ("results/TOP100_k_means"+str(n_clusters)+".txt","w+") as f:
+	with open ("results/new/"+str(topic)+"_"+"TOP100_k_means"+str(n_clusters)+".txt","w+") as f:
 		for i in range(len(zz)) :
 			j=zz[i]
 			f.write(str(data[j]).encode("utf-8"))
 			f.write("\n")
-	util.listTocsv("results/cluster_tweets "+str(n_clusters)+".csv",zy)
+	util.listTocsv("results/new/"+str(topic)+"_"+"cluster_tweets "+str(n_clusters)+".csv",zy)
 	

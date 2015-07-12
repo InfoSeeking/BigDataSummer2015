@@ -32,3 +32,30 @@ def remove_newline(tweets) :
 	tweets=[tweet.replace("\n"," ") for tweet in tweets]
 	return tweets	
 
+def url_removed(pos_tweet):
+	tweet=" "
+	url=" "
+	for tok in pos_tweet :
+		if tok[1]=="U" :
+			url=url+" "+tok[0]
+		else :
+			tweet=tweet+" "+tok[0]
+	y=[]
+	y.append(tweet.lstrip(" "))
+	y.append(url)
+	return y
+
+def common_except_url(pos_tweets):
+	tweets=[ url_removed(pos_tweet) for pos_tweet in pos_tweets]
+	final_tweets=[]
+	final_urls=[]
+	for tweet in tweets :
+		if tweet[0] in final_tweets :
+			i=final_tweets.index(tweet[0])
+			final_urls[i]=final_urls[i]+" "+tweet[1]
+		else :
+			final_tweets.append(tweet[0])
+			final_urls.append(tweet[1])
+	for i in range(0,len(final_tweets)) :
+		final_tweets[i]=final_tweets[i]+" "+final_urls[i]
+	return final_tweets			
