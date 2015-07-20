@@ -14,10 +14,20 @@ import util
 
 
 #Create a twitter developer a/c to get the API keys,tokens
+<<<<<<< HEAD
 API_KEY='cUTgURkmvAKPjar4NxE7qWh4v'
 API_SECRET='VTUGm126JAr12uJdwpjkVWAlwoezt4cmzS0CADg1FTvmmMjIXe'
 ACCESS_TOKEN='3222410820-Y3UBodT0cFvkKPebEcQEjgghMeAWzIDb8Kmo4Il'
 ACCESS_TOKEN_SECRET='b4pjhTzx3dHcomEs5laNbpeMXH6pluhUsi04RxLAgrxfY'
+=======
+API_KEY=api_key
+API_SECRET=api_secret
+ACCESS_TOKEN=access_token
+ACCESS_TOKEN_SECRET=access_token_secret
+auth=tweepy.OAuthHandler(API_KEY, API_SECRET)
+auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+api = tweepy.API(auth,proxy="http://u.padalkar:13908117@202.141.80.20:3128/") #if using proxy based server,add an argument proxy="http://username:pswrd@host:port/"
+>>>>>>> 637f8ffac7dcaec5eb8efd1eb352669914ed2685
 
 
 def getTweets(topic,PATH_TO_RAW_DATA,MAX_TWEETS) :
