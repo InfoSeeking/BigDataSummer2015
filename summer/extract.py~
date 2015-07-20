@@ -8,45 +8,37 @@
 
 import tweepy
 import time
-import csv
 import sys
 import os
 import util
 
-DIR_PATH='data/raw_data'
 
 #Create a twitter developer a/c to get the API keys,tokens
 API_KEY='cUTgURkmvAKPjar4NxE7qWh4v'
 API_SECRET='VTUGm126JAr12uJdwpjkVWAlwoezt4cmzS0CADg1FTvmmMjIXe'
 ACCESS_TOKEN='3222410820-Y3UBodT0cFvkKPebEcQEjgghMeAWzIDb8Kmo4Il'
 ACCESS_TOKEN_SECRET='b4pjhTzx3dHcomEs5laNbpeMXH6pluhUsi04RxLAgrxfY'
-auth=tweepy.OAuthHandler(API_KEY, API_SECRET)
-auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-api = tweepy.API(auth,proxy="http://u.padalkar:13908117@202.141.80.20:3128/") #if using proxy based server,add an argument proxy="http://username:pswrd@host:port/"
 
-topic="Fifa"
-if not os.path.exists(DIR_PATH):
-  	os.makedirs(DIR_PATH)
-file_name=topic+'.csv'
-file_path=DIR_PATH+'/'+file_name
-ctr=0
-while ctr < 50000 :
-	print ctr
-	tweets=tweepy.Cursor(api.search, q=topic,lang='en').items(500)
-	try:
-		for tweet in tweets : 
-			if not tweet.retweeted :
-				ctr=ctr+1
-				dataStrip = []		
-				dataStrip.append(tweet.text.encode('utf-8'))
-				with open(file_path, "a+") as fp :
-					print("w")
-				     	writeFile = csv.writer(fp)
-		      			writeFile.writerow(dataStrip)
-				fp.close()
-	except tweepy.error.TweepError :	
-		print("Waiting for 15 mins : Rate Limit Restriction ") 
-		print ctr
-	 	time.sleep(60*15) # Rate Limit Restriction on no. of tweets extracted in one 15-min window
+
+def getTweets(topic,PATH_TO_RAW_DATA,MAX_TWEETS) :
+	auth=tweepy.OAuthHandler(API_KEY, API_SECRET)
+	auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+	api = tweepy.API(auth,proxy="http://u.padalkar:13908117@202.141.80.20:3128/") #if using proxy based server,add an argument proxy="http://username:pswrd@host:port/"
+	
+	for topic in topics :
+		print topic
+		outFile=PATH_TO_RAW_DATA+'/'+topic+".txt" 
+		ctr=0
+		while ctr < MAX_TWEETS :
+			data=tweepy.Cursor(api.search, q=topic,lang='en').items(500)
+			try:
+				tweets = [data.text.lower().encode('utf-8') for tweet in data ]
+				ctr=ctr+len(tweets)
+				util.listTotxt(outFile,tweets,"a+")
+				
+			except tweepy.error.TweepError :	
+				print("Waiting for 15 mins : Rate Limit Restriction ") 
+				print(str(ctr)+" Tweets Extracted\n")
+				time.sleep(60*15) # Rate Limit Restriction on no. of tweets extracted in one 15-min window
 
 
