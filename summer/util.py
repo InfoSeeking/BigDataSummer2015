@@ -1,6 +1,16 @@
 import csv
 import error
 import math
+import os
+
+def createFilePath(FilePath) :
+	if not os.path.exists(FilePath):
+  		os.makedirs(FilePath)
+
+def listTotxt(outFile,mylist,options) :
+	with open(outFile,options) as f :
+		for token in mylist :	
+	   		f.write(str(token)+"\n")
 
 def txtTolist(myfile): #repeats=True remove repetitons from final list
 	with open(myfile) as f:
@@ -20,9 +30,8 @@ def csvColTolist(myfile,i) :
 		myCol.append(str(row[i]))
 	return myCol
 	
-	
-def listTocsv(file_path,mylist):
-	with open(file_path,'w+') as f:	
+def listTocsv(outFile,mylist,options):
+	with open(outFile,options) as f:	
 		wr = csv.writer(f)
 		wr.writerows(mylist)
 
